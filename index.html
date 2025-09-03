@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Residential Development Financial Appraisal Model</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
         body {
             font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
@@ -221,7 +223,7 @@
             font-size: 0.75em !important;
         }
         
-        .calculate-btn {
+        .calculate-btn, .export-btn {
             background: #007acc;
             color: white;
             border: none;
@@ -231,19 +233,26 @@
             font-weight: 500;
             cursor: pointer;
             transition: background-color 0.2s;
-            margin: 16px 0;
+            margin: 0 0 16px 0;
             font-family: inherit;
         }
         
-        .calculate-btn:hover {
+        .calculate-btn:hover, .export-btn:hover {
             background: #0056b3;
+        }
+
+        .export-btn {
+            background-color: #17a2b8;
+        }
+        .export-btn:hover {
+            background-color: #117a8b;
         }
         
         /* Professional output styling */
         .output-header {
             background: #f8f9fa;
-            margin: -25px -30px 25px -30px;
-            padding: 20px 30px;
+            margin: 0;
+            padding: 20px 0;
             border-bottom: 1px solid #dee2e6;
         }
         
@@ -598,8 +607,6 @@
                     </div>
                 </div>
             </div>
-            
-            <button class="calculate-btn" onclick="calculate()">Recalculate</button>
         </div>
         
         <!-- Revenue & Sales Tab -->
@@ -843,219 +850,222 @@
         
         <!-- Client Output Tab -->
         <div id="output" class="tab-content">
-            <div class="output-header">
-                <h3>Development Appraisal Summary</h3>
-                <p id="outputProjectName"></p>
-            </div>
-            
-            <!-- PROJECT APPRAISAL -->
-            <div class="appraisal-section">PROJECT APPRAISAL</div>
-            
-            <div class="appraisal-subsection">REVENUE</div>
-            <table class="appraisal-table">
-                <tr>
-                    <td>Private Residential Sales</td>
-                    <td id="appraisal-gdv">£0</td>
-                </tr>
-                <tr>
-                    <td>GDV per sqft / m²</td>
-                    <td id="appraisal-gdv-per-sq">£0</td>
-                </tr>
-                <tr>
-                    <td>Sales Costs</td>
-                    <td id="appraisal-sales-costs" class="appraisal-negative">£0</td>
-                </tr>
-                <tr class="appraisal-subtotal">
-                    <td>Net Income</td>
-                    <td id="appraisal-net-income">£0</td>
-                </tr>
-            </table>
-            
-            <div class="appraisal-subsection">LAND COSTS</div>
-            <table class="appraisal-table">
-                <tr>
-                    <td>Land Acquisition</td>
-                    <td id="appraisal-land-cost" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Stamp Duty</td>
-                    <td id="appraisal-stamp-duty" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Other Acquisition Costs</td>
-                    <td id="appraisal-legal-fees" class="appraisal-negative">£0</td>
-                </tr>
-                <tr class="appraisal-subtotal">
-                    <td>Total Land Costs</td>
-                    <td id="appraisal-total-land" class="appraisal-negative">£0</td>
-                </tr>
-            </table>
-            
-            <div class="appraisal-subsection">BUILD COSTS</div>
-            <table class="appraisal-table">
-                <tr>
-                    <td>Construction Costs</td>
-                    <td id="appraisal-construction" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Build Cost per sqft / m²</td>
-                    <td id="appraisal-build-cost-per-sq">£0</td>
-                </tr>
-                <tr>
-                    <td>Construction Contingency</td>
-                    <td id="appraisal-contingency" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Build Cost inc. Contingency</td>
-                    <td id="appraisal-build-cost-inc-contingency" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Professional Fees</td>
-                    <td id="appraisal-prof-fees" class="appraisal-negative">£0</td>
-                </tr>
-                <tr class="appraisal-subtotal">
-                    <td>Total Build Costs</td>
-                    <td id="appraisal-total-build" class="appraisal-negative">£0</td>
-                </tr>
-            </table>
-            
-            <tr class="appraisal-subtotal">
+            <button class="export-btn" onclick="exportPDF()">Export to PDF</button>
+            <div id="pdf-content">
+                <div class="output-header">
+                    <h3>Development Appraisal Summary</h3>
+                    <p id="outputProjectName"></p>
+                </div>
+                
+                <!-- PROJECT APPRAISAL -->
+                <div class="appraisal-section">PROJECT APPRAISAL</div>
+                
+                <div class="appraisal-subsection">REVENUE</div>
                 <table class="appraisal-table">
+                    <tr>
+                        <td>Private Residential Sales</td>
+                        <td id="appraisal-gdv">£0</td>
+                    </tr>
+                    <tr>
+                        <td>GDV per sqft / m²</td>
+                        <td id="appraisal-gdv-per-sq">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Sales Costs</td>
+                        <td id="appraisal-sales-costs" class="appraisal-negative">£0</td>
+                    </tr>
                     <tr class="appraisal-subtotal">
-                        <td>Unlevered Costs</td>
-                        <td id="appraisal-unlevered-costs" class="appraisal-negative">£0</td>
+                        <td>Net Income</td>
+                        <td id="appraisal-net-income">£0</td>
                     </tr>
                 </table>
-            </tr>
-            
-            <div class="appraisal-subsection">FINANCE COSTS</div>
-            <table class="appraisal-table">
-                <tr>
-                    <td>Arrangement Fees</td>
-                    <td id="appraisal-arrangement-fees" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Interest</td>
-                    <td id="appraisal-interest" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Exit Fees</td>
-                    <td id="appraisal-exit-fees" class="appraisal-negative">£0</td>
-                </tr>
-                <tr>
-                    <td>Lenders Professional Fees</td>
-                    <td id="appraisal-lender-fees" class="appraisal-negative">£0</td>
-                </tr>
+                
+                <div class="appraisal-subsection">LAND COSTS</div>
+                <table class="appraisal-table">
+                    <tr>
+                        <td>Land Acquisition</td>
+                        <td id="appraisal-land-cost" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Stamp Duty</td>
+                        <td id="appraisal-stamp-duty" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Other Acquisition Costs</td>
+                        <td id="appraisal-legal-fees" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr class="appraisal-subtotal">
+                        <td>Total Land Costs</td>
+                        <td id="appraisal-total-land" class="appraisal-negative">£0</td>
+                    </tr>
+                </table>
+                
+                <div class="appraisal-subsection">BUILD COSTS</div>
+                <table class="appraisal-table">
+                    <tr>
+                        <td>Construction Costs</td>
+                        <td id="appraisal-construction" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Build Cost per sqft / m²</td>
+                        <td id="appraisal-build-cost-per-sq">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Construction Contingency</td>
+                        <td id="appraisal-contingency" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Build Cost inc. Contingency</td>
+                        <td id="appraisal-build-cost-inc-contingency" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Professional Fees</td>
+                        <td id="appraisal-prof-fees" class="appraisal-negative">£0</td>
+                    </tr>
+                    <tr class="appraisal-subtotal">
+                        <td>Total Build Costs</td>
+                        <td id="appraisal-total-build" class="appraisal-negative">£0</td>
+                    </tr>
+                </table>
+                
                 <tr class="appraisal-subtotal">
-                    <td>Total Finance Costs</td>
-                    <td id="appraisal-total-finance" class="appraisal-negative">£0</td>
+                    <table class="appraisal-table">
+                        <tr class="appraisal-subtotal">
+                            <td>Unlevered Costs</td>
+                            <td id="appraisal-unlevered-costs" class="appraisal-negative">£0</td>
+                        </tr>
+                    </table>
                 </tr>
-            </table>
-            
-            <table class="appraisal-table">
-                <tr class="appraisal-subtotal">
-                    <td>Levered Costs</td>
-                    <td id="appraisal-levered-costs" class="appraisal-negative">£0</td>
-                </tr>
-                <tr class="appraisal-total">
-                    <td><strong>NET PROFIT</strong></td>
-                    <td id="appraisal-net-profit"><strong>£0</strong></td>
-                </tr>
-            </table>
-            
-            <!-- PROJECT KPIS -->
-            <div class="appraisal-section">PROJECT KPIS</div>
-            <table class="kpi-table">
-                <thead>
+                
+                <div class="appraisal-subsection">FINANCE COSTS</div>
+                <table class="appraisal-table">
                     <tr>
-                        <th></th>
-                        <th>Unlevered</th>
-                        <th>Levered</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Equity Requirement</td>
-                        <td id="kpi-equity-unlevered">£0</td>
-                        <td id="kpi-equity-levered">£0</td>
+                        <td>Arrangement Fees</td>
+                        <td id="appraisal-arrangement-fees" class="appraisal-negative">£0</td>
                     </tr>
                     <tr>
-                        <td>Profit</td>
-                        <td id="kpi-profit-unlevered">£0</td>
-                        <td id="kpi-profit-levered">£0</td>
+                        <td>Interest</td>
+                        <td id="appraisal-interest" class="appraisal-negative">£0</td>
                     </tr>
                     <tr>
-                        <td>EM</td>
-                        <td id="kpi-em-unlevered">0.00x</td>
-                        <td id="kpi-em-levered">0.00x</td>
+                        <td>Exit Fees</td>
+                        <td id="appraisal-exit-fees" class="appraisal-negative">£0</td>
                     </tr>
                     <tr>
-                        <td>Profit-on-Cost</td>
-                        <td id="kpi-poc-unlevered">0.0%</td>
-                        <td id="kpi-poc-levered">0.0%</td>
+                        <td>Lenders Professional Fees</td>
+                        <td id="appraisal-lender-fees" class="appraisal-negative">£0</td>
                     </tr>
-                    <tr>
-                        <td>Profit-on-Sales</td>
-                        <td id="kpi-pos-unlevered">0.0%</td>
-                        <td id="kpi-pos-levered">0.0%</td>
+                    <tr class="appraisal-subtotal">
+                        <td>Total Finance Costs</td>
+                        <td id="appraisal-total-finance" class="appraisal-negative">£0</td>
                     </tr>
-                    <tr>
-                        <td>IRR</td>
-                        <td id="kpi-irr-unlevered">0.0%</td>
-                        <td id="kpi-irr-levered">0.0%</td>
-                    </tr>
-                </tbody>
-            </table>
-            
-            <!-- PROFIT SPLIT -->
-            <div class="appraisal-section">ANTICIPATED PROFIT SPLIT AND RETURNS</div>
-            <table class="kpi-table">
-                <thead>
-                    <tr>
-                        <th></th>
-                        <th>Project</th>
-                        <th id="investor-name-header">Investor</th>
-                        <th>Developer</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Equity Requirement</td>
-                        <td id="split-equity-project">£0</td>
-                        <td id="split-equity-investor">£0</td>
-                        <td id="split-equity-developer">£0</td>
-                    </tr>
-                    <tr>
-                        <td><em>% equity</em></td>
-                        <td id="split-percent-project">100%</td>
-                        <td id="split-percent-investor">0%</td>
-                        <td id="split-percent-developer">100%</td>
-                    </tr>
-                    <tr>
-                        <td>EM (Equity Multiple)</td>
-                        <td id="split-em-project">0.00x</td>
-                        <td id="split-em-investor">0.00x</td>
-                        <td id="split-em-developer">0.00x</td>
-                    </tr>
-                    <tr>
-                        <td>Share of Profit</td>
-                        <td id="split-profit-project">£0</td>
-                        <td id="split-profit-investor">£0</td>
-                        <td id="split-profit-developer">£0</td>
+                </table>
+                
+                <table class="appraisal-table">
+                    <tr class="appraisal-subtotal">
+                        <td>Levered Costs</td>
+                        <td id="appraisal-levered-costs" class="appraisal-negative">£0</td>
                     </tr>
                     <tr class="appraisal-total">
-                        <td><strong>Total Profit</strong></td>
-                        <td id="split-total-project"><strong>£0</strong></td>
-                        <td id="split-total-investor"><strong>£0</strong></td>
-                        <td id="split-total-developer"><strong>£0</strong></td>
+                        <td><strong>NET PROFIT</strong></td>
+                        <td id="appraisal-net-profit"><strong>£0</strong></td>
                     </tr>
-                </tbody>
-            </table>
+                </table>
+                
+                <!-- PROJECT KPIS -->
+                <div class="appraisal-section">PROJECT KPIS</div>
+                <table class="kpi-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Unlevered</th>
+                            <th>Levered</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Equity Requirement</td>
+                            <td id="kpi-equity-unlevered">£0</td>
+                            <td id="kpi-equity-levered">£0</td>
+                        </tr>
+                        <tr>
+                            <td>Profit</td>
+                            <td id="kpi-profit-unlevered">£0</td>
+                            <td id="kpi-profit-levered">£0</td>
+                        </tr>
+                        <tr>
+                            <td>EM</td>
+                            <td id="kpi-em-unlevered">0.00x</td>
+                            <td id="kpi-em-levered">0.00x</td>
+                        </tr>
+                        <tr>
+                            <td>Profit-on-Cost</td>
+                            <td id="kpi-poc-unlevered">0.0%</td>
+                            <td id="kpi-poc-levered">0.0%</td>
+                        </tr>
+                        <tr>
+                            <td>Profit-on-Sales</td>
+                            <td id="kpi-pos-unlevered">0.0%</td>
+                            <td id="kpi-pos-levered">0.0%</td>
+                        </tr>
+                        <tr>
+                            <td>IRR</td>
+                            <td id="kpi-irr-unlevered">0.0%</td>
+                            <td id="kpi-irr-levered">0.0%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                
+                <!-- PROFIT SPLIT -->
+                <div class="appraisal-section">ANTICIPATED PROFIT SPLIT AND RETURNS</div>
+                <table class="kpi-table">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Project</th>
+                            <th id="investor-name-header">Investor</th>
+                            <th>Developer</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Equity Requirement</td>
+                            <td id="split-equity-project">£0</td>
+                            <td id="split-equity-investor">£0</td>
+                            <td id="split-equity-developer">£0</td>
+                        </tr>
+                        <tr>
+                            <td><em>% equity</em></td>
+                            <td id="split-percent-project">100%</td>
+                            <td id="split-percent-investor">0%</td>
+                            <td id="split-percent-developer">100%</td>
+                        </tr>
+                        <tr>
+                            <td>EM (Equity Multiple)</td>
+                            <td id="split-em-project">0.00x</td>
+                            <td id="split-em-investor">0.00x</td>
+                            <td id="split-em-developer">0.00x</td>
+                        </tr>
+                        <tr>
+                            <td>Share of Profit</td>
+                            <td id="split-profit-project">£0</td>
+                            <td id="split-profit-investor">£0</td>
+                            <td id="split-profit-developer">£0</td>
+                        </tr>
+                        <tr class="appraisal-total">
+                            <td><strong>Total Profit</strong></td>
+                            <td id="split-total-project"><strong>£0</strong></td>
+                            <td id="split-total-investor"><strong>£0</strong></td>
+                            <td id="split-total-developer"><strong>£0</strong></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     
     <script>
-        var nextFeeId = 7;
+        var nextFeeId = 2;
         
         function showTab(tabName, clickedTab) {
             try {
@@ -1153,6 +1163,45 @@
                 case 'fixed':
                 default: return value;
             }
+        }
+
+        function exportPDF() {
+            window.jsPDF = window.jspdf.jsPDF;
+            const projectName = document.getElementById('projectName').value || 'Development Appraisal';
+            const outputContent = document.getElementById('pdf-content');
+            
+            html2canvas(outputContent, { scale: 2, useCORS: true }).then(canvas => {
+                const imgData = canvas.toDataURL('image/png');
+                const pdf = new jsPDF({
+                    orientation: 'portrait',
+                    unit: 'mm',
+                    format: 'a4'
+                });
+
+                const imgProps = pdf.getImageProperties(imgData);
+                const pdfWidth = pdf.internal.pageSize.getWidth();
+                const pdfHeight = pdf.internal.pageSize.getHeight();
+                
+                const canvasWidth = imgProps.width;
+                const canvasHeight = imgProps.height;
+
+                const ratio = canvasWidth / canvasHeight;
+                
+                const margin = 10;
+                let finalWidth = pdfWidth - (margin * 2);
+                let finalHeight = finalWidth / ratio;
+
+                if (finalHeight > pdfHeight - (margin * 2)) {
+                    finalHeight = pdfHeight - (margin * 2);
+                    finalWidth = finalHeight * ratio;
+                }
+                
+                const xPos = (pdfWidth - finalWidth) / 2;
+                const yPos = (pdfHeight - finalHeight) / 2;
+
+                pdf.addImage(imgData, 'PNG', xPos, yPos, finalWidth, finalHeight);
+                pdf.save(projectName + '.pdf');
+            });
         }
         
         function calculate() {
