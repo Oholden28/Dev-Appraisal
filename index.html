@@ -1,0 +1,1515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Residential Development Financial Appraisal Model</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #fafafa;
+            color: #333;
+            line-height: 1.4;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: #f8f9fa;
+            color: #2c3e50;
+            padding: 20px 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 1.8em;
+            font-weight: 400;
+            letter-spacing: -0.02em;
+        }
+        
+        .header p {
+            margin: 5px 0 0 0;
+            font-size: 0.9em;
+            color: #6c757d;
+            font-weight: 300;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #fff;
+            border-bottom: 1px solid #dee2e6;
+            overflow-x: auto;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            background: transparent;
+            color: #6c757d;
+            cursor: pointer;
+            border: none;
+            font-size: 0.85em;
+            font-weight: 400;
+            white-space: nowrap;
+            transition: all 0.2s;
+            border-bottom: 2px solid transparent;
+        }
+        
+        .tab.active {
+            color: #2c3e50;
+            border-bottom-color: #007acc;
+        }
+        
+        .tab:hover {
+            color: #2c3e50;
+            background: #f8f9fa;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 25px 30px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            background: #fff;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .section h3 {
+            color: #2c3e50;
+            margin: 0 0 16px 0;
+            font-size: 1.1em;
+            font-weight: 500;
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 8px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .form-group label {
+            font-weight: 500;
+            margin-bottom: 4px;
+            color: #495057;
+            font-size: 0.85em;
+        }
+
+        .form-group .calculated-value {
+            font-size: 0.8em;
+            color: #6c757d;
+            margin-top: 4px;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 8px 12px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            font-size: 0.9em;
+            transition: border-color 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #007acc;
+            box-shadow: 0 0 0 2px rgba(0,122,204,0.1);
+        }
+        
+        .professional-fee-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 16px;
+            align-items: start;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 4px;
+            margin-bottom: 12px;
+        }
+
+        .fee-name-input {
+            width: 100%;
+            border: 1px solid transparent;
+            background-color: transparent;
+            padding: 2px 4px;
+            margin: -2px -4px 4px -4px;
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.85em;
+            font-family: inherit;
+            border-radius: 3px;
+        }
+
+        .fee-name-input:hover {
+            background-color: #e9ecef;
+        }
+
+        .fee-name-input:focus {
+            outline: none;
+            background-color: white;
+            border: 1px solid #007acc;
+        }
+        
+        .professional-fee-item > div {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .professional-fee-item label {
+            font-weight: 500;
+            color: #495057;
+            font-size: 0.85em;
+            margin-bottom: 4px;
+        }
+        
+        .professional-fee-item input, .professional-fee-item select {
+            padding: 6px 8px;
+            border: 1px solid #ced4da;
+            border-radius: 3px;
+            font-size: 0.85em;
+            width: 100%;
+        }
+        
+        .fee-result-section {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+        
+        .fee-display {
+            font-size: 0.8em;
+            color: #6c757d;
+            flex-grow: 1;
+        }
+        
+        .remove-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            font-size: 0.7em;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+        
+        .fee-method {
+            font-size: 0.75em !important;
+        }
+        
+        .calculate-btn {
+            background: #007acc;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 3px;
+            font-size: 0.9em;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin: 16px 0;
+            font-family: inherit;
+        }
+        
+        .calculate-btn:hover {
+            background: #0056b3;
+        }
+        
+        /* Professional output styling */
+        .output-header {
+            background: #f8f9fa;
+            margin: -25px -30px 25px -30px;
+            padding: 20px 30px;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .output-header h3 {
+            margin: 0;
+            font-size: 1.3em;
+            font-weight: 400;
+            color: #2c3e50;
+            border: none;
+            padding: 0;
+        }
+
+        .output-header p {
+            margin: 5px 0 0 0;
+            font-size: 1.1em;
+            color: #333;
+            font-weight: 600;
+        }
+        
+        /* Appraisal tables */
+        .appraisal-section {
+            background: #2c3e50;
+            color: white;
+            padding: 8px 16px;
+            margin: 20px 0 0 0;
+            font-weight: 600;
+            font-size: 0.9em;
+            letter-spacing: 0.5px;
+        }
+        
+        .appraisal-subsection {
+            color: #2c3e50;
+            font-weight: 600;
+            font-size: 0.85em;
+            font-style: italic;
+            margin: 16px 0 8px 0;
+            text-transform: uppercase;
+        }
+        
+        .appraisal-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 16px;
+        }
+        
+        .appraisal-table td {
+            padding: 4px 12px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.85em;
+        }
+        
+        .appraisal-table td:first-child {
+            text-align: left;
+        }
+        
+        .appraisal-table td:last-child {
+            text-align: right;
+            font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+        }
+        
+        .appraisal-total {
+            border-top: 1px solid #ccc;
+            border-bottom: 2px solid #2c3e50;
+            font-weight: 600;
+        }
+        
+        .appraisal-subtotal {
+            background: #f8f9fa;
+            font-weight: 600;
+        }
+        
+        .appraisal-negative {
+            color: #dc3545;
+        }
+        
+        .kpi-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+        }
+        
+        .kpi-table th {
+            background: #f8f9fa;
+            padding: 8px 12px;
+            text-align: right;
+            font-size: 0.8em;
+            font-weight: 600;
+            border-bottom: 1px solid #dee2e6;
+        }
+        
+        .kpi-table th:first-child {
+            text-align: left;
+        }
+        
+        .kpi-table td {
+            padding: 6px 12px;
+            font-size: 0.85em;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .kpi-table td:first-child {
+            text-align: left;
+        }
+        
+        .kpi-table td:not(:first-child) {
+            text-align: right;
+            font-family: 'SF Mono', 'Menlo', 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Residential Development Financial Appraisal Model</h1>
+            <p>Comprehensive financial analysis for property development projects</p>
+        </div>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="showTab('inputs', this)">Project Inputs</button>
+            <button class="tab" onclick="showTab('revenue', this)">Revenue & Sales</button>
+            <button class="tab" onclick="showTab('cashflow', this)">Cashflow Analysis</button>
+            <button class="tab" onclick="showTab('financing', this)">Financing</button>
+            <button class="tab" onclick="showTab('metrics', this)">Profitability Metrics</button>
+            <button class="tab" onclick="showTab('output', this)">Client Output</button>
+        </div>
+        
+        <!-- Project Inputs Tab -->
+        <div id="inputs" class="tab-content active">
+            <div class="section">
+                <h3>Project Details</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="projectName">Project Name</label>
+                        <input type="text" id="projectName" value="">
+                    </div>
+                     <div class="form-group">
+                        <label for="targetProfitOnCost">Target Profit on Cost (%)</label>
+                        <input type="number" id="targetProfitOnCost" value="20">
+                    </div>
+                    <div class="form-group">
+                        <label for="projectType">Development Type</label>
+                        <select id="projectType">
+                            <option value="houses">Houses</option>
+                            <option value="apartments">Apartments</option>
+                            <option value="townhomes">Townhomes</option>
+                            <option value="mixed">Mixed Development</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="totalUnits">Total Units</label>
+                        <input type="number" id="totalUnits" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="endPeriod">Project Duration (Periods)</label>
+                        <input type="number" id="endPeriod" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="periodType">Period Type</label>
+                        <select id="periodType">
+                            <option value="monthly">Monthly</option>
+                            <option value="quarterly">Quarterly</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="schemeSize">Total Scheme Size</label>
+                        <input type="number" id="schemeSize" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="sizeUnit">Size Unit</label>
+                        <select id="sizeUnit">
+                            <option value="sqft">Square Feet</option>
+                            <option value="sqm">Square Metres</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Land & Acquisition Costs</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="landCost">Land Purchase Price (£)</label>
+                        <input type="number" id="landCost" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="stampDuty">Stamp Duty (£)</label>
+                        <input type="number" id="stampDuty" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="legalFees">Legal & Professional Fees (£)</label>
+                        <input type="number" id="legalFees" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="landPeriod">Land Payment Period</label>
+                        <input type="number" id="landPeriod" value="1" min="1">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Construction Costs</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="buildCostTotal">Total Construction Cost (£)</label>
+                        <input type="number" id="buildCostTotal" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="contingency">Contingency on Construction (%)</label>
+                        <input type="number" id="contingency" value="0" min="0" max="20" step="0.5">
+                    </div>
+                    <div class="form-group">
+                        <label for="buildStartPeriod">Construction Start Period</label>
+                        <input type="number" id="buildStartPeriod" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="buildDuration">Construction Duration (Periods)</label>
+                        <input type="number" id="buildDuration" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="sCurve">Use S-Curve for Construction?</label>
+                        <select id="sCurve">
+                            <option value="true">Yes - S-Curve Distribution</option>
+                            <option value="false">No - Even Distribution</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Professional Fees</h3>
+                
+                <div id="professionalFeesContainer">
+                    <div class="professional-fee-item" data-fee-id="1">
+                        <div>
+                            <input type="text" class="fee-name-input" value="Architect Fees">
+                            <input type="number" id="fee1Value" value="">
+                        </div>
+                        <div>
+                            <label for="fee1Method">Method</label>
+                            <select id="fee1Method" class="fee-method">
+                                <option value="percent">% of Construction</option>
+                                <option value="sqft">Per Sq Ft/M</option>
+                                <option value="fixed" selected>Fixed Sum</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>&nbsp;</label>
+                            <div class="fee-result-section">
+                                <span id="fee1Display" class="fee-display">£0</span>
+                                <button type="button" onclick="removeFeeItem(1)" class="remove-btn">Remove</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div style="margin: 16px 0;">
+                    <button type="button" onclick="addFeeItem()" style="background: #28a745; color: white; border: none; padding: 8px 16px; border-radius: 3px; font-size: 0.85em; cursor: pointer;">+ Add Professional Fee</button>
+                </div>
+                
+                <div style="margin-top: 16px; padding: 12px; background: #e3f2fd; border-radius: 4px;">
+                    <strong>Total Professional Fees: <span id="totalProfessionalFees">£0</span></strong>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Revenue Assumptions</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="grossDevelopmentValue">Gross Development Value (£)</label>
+                        <input type="number" id="grossDevelopmentValue" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="salesFees">Sales Agent Fees (%)</label>
+                        <input type="number" id="salesFees" value="0" min="0" max="5" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="salesStartPeriod">Sales Start Period</label>
+                        <input type="number" id="salesStartPeriod" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="salesDuration">Sales Duration (Periods)</label>
+                        <input type="number" id="salesDuration" value="">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h3>Financing Structure</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="ltcRatio">Loan to Cost (LTC) %</label>
+                        <input type="number" id="ltcRatio" value="0" min="0" max="90">
+                    </div>
+                    <div class="form-group">
+                        <label for="ltvRatio">Loan to Value (LTV) %</label>
+                        <input type="number" id="ltvRatio" value="0" min="0" max="85">
+                    </div>
+                    <div class="form-group">
+                        <label for="baseRate">BoE/SONIA Rate (%)</label>
+                        <input type="number" id="baseRate" value="0" min="0" max="15" step="0.25">
+                    </div>
+                    <div class="form-group">
+                        <label for="margin">Lender Margin (%)</label>
+                        <input type="number" id="margin" value="0" min="0" max="10" step="0.25">
+                    </div>
+                    <div class="form-group">
+                        <label for="arrangementFee">Arrangement Fee (%)</label>
+                        <input type="number" id="arrangementFee" value="0" min="0" max="5" step="0.1">
+                    </div>
+                    <div class="form-group">
+                        <label for="exitFee">Exit Fee (%)</label>
+                        <input type="number" id="exitFee" value="0" min="0" max="3" step="0.1">
+                    </div>
+                </div>
+                <h3 style="margin-top: 20px;">Lender's Professional Fees</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="lenderValuationFee">Site Valuation (£)</label>
+                        <input type="number" id="lenderValuationFee" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="lenderPmsFee">PMS (£)</label>
+                        <input type="number" id="lenderPmsFee" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="lenderMonthlyPmsFee">Monthly PMS (£)</label>
+                        <input type="number" id="lenderMonthlyPmsFee" value="0">
+                        <span class="calculated-value">Duration: <strong id="pmsDurationDisplay">0 months</strong></span>
+                    </div>
+                     <div class="form-group">
+                        <label for="lenderLegalFee">Legal Fees (£)</label>
+                        <input type="number" id="lenderLegalFee" value="0">
+                    </div>
+                </div>
+            </div>
+
+            <div class="section">
+                <h3>Investor Assumptions</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="investorName">Investor Name</label>
+                        <input type="text" id="investorName" value="">
+                    </div>
+                    <div class="form-group">
+                        <label for="investorEquityPercent">Percentage of Equity (%)</label>
+                        <input type="number" id="investorEquityPercent" value="0" min="0" max="100">
+                        <span class="calculated-value">Equity Commitment: <strong id="investorEquityCommitment">£0</strong></span>
+                    </div>
+                     <div class="form-group">
+                        <label for="investorProfitShare">Share of Profits (%)</label>
+                        <input type="number" id="investorProfitShare" value="0" min="0" max="100">
+                    </div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculate()">Recalculate</button>
+        </div>
+        
+        <!-- Revenue & Sales Tab -->
+        <div id="revenue" class="tab-content">
+            <div class="appraisal-section">REVENUE ANALYSIS</div>
+            
+            <table class="appraisal-table">
+                <tr>
+                    <td>Gross Development Value</td>
+                    <td id="gdvDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>GDV per sqft / m²</td>
+                    <td id="gdvPerSqFtDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Average Sale Price (Calculated)</td>
+                    <td id="avgPriceDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Sales Agent Fees</td>
+                    <td id="salesFeesDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Net Development Value</td>
+                    <td id="ndvDisplay">£0</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Cashflow Analysis Tab (summary) -->
+        <div id="cashflow" class="tab-content">
+            <div class="appraisal-section">DEVELOPMENT COSTS BREAKDOWN</div>
+            
+            <div class="appraisal-subsection">LAND & ACQUISITION</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Land & Acquisition</td>
+                    <td id="landCostDisplay">£0</td>
+                </tr>
+            </table>
+            
+            <div class="appraisal-subsection">CONSTRUCTION</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Construction Costs</td>
+                    <td id="buildCostDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Professional Fees</td>
+                    <td id="profFeesDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Contingency (on Construction)</td>
+                    <td id="contingencyDisplay">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Total Development Cost</td>
+                    <td id="totalCostDisplay">£0</td>
+                </tr>
+            </table>
+            
+            <div class="appraisal-subsection">COST ANALYSIS</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Cost per sqft / m²</td>
+                    <td id="costPerSqDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>GDV per sqft / m²</td>
+                    <td id="gdvPerSqDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Sales Fees</td>
+                    <td id="salesFeesBreakdownDisplay" class="appraisal-negative">£0</td>
+                </tr>
+            </table>
+            
+            <div class="appraisal-section">PROFESSIONAL FEES BREAKDOWN</div>
+            <table class="appraisal-table" id="profFeesBreakdownTable">
+                <!-- Dynamically populated -->
+            </table>
+            
+            <div class="appraisal-section">LOAN FUNDING BREAKDOWN</div>
+            <table class="appraisal-table">
+                <thead>
+                    <tr style="border-bottom: 1px solid #dee2e6; background: #f8f9fa;">
+                        <th style="padding: 8px 12px; font-size: 0.8em; font-weight: 500; text-align: left;">Cost Category</th>
+                        <th style="padding: 8px 12px; font-size: 0.8em; font-weight: 500; text-align: left;">Total Cost</th>
+                        <th style="padding: 8px 12px; font-size: 0.8em; font-weight: 500; text-align: right;">Loan Funding</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Arrangement Fee</td>
+                        <td id="loanBreakdown-arrangementFee" class="appraisal-negative">£0</td>
+                        <td id="loanBreakdown-arrangementFeeFunded">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Interest</td>
+                        <td id="loanBreakdown-interest" class="appraisal-negative">£0</td>
+                        <td id="loanBreakdown-interestFunded">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Development Costs</td>
+                        <td id="loanBreakdown-devCosts" class="appraisal-negative">£0</td>
+                        <td id="loanBreakdown-devCostsFunded">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Land & Acquisition</td>
+                        <td id="loanBreakdown-landCosts" class="appraisal-negative">£0</td>
+                        <td id="loanBreakdown-landCostsFunded">£0</td>
+                    </tr>
+                    <tr class="appraisal-subtotal">
+                        <td>Total Funding Required</td>
+                        <td id="loanBreakdown-totalCosts" class="appraisal-negative">£0</td>
+                        <td id="loanBreakdown-totalFunded">£0</td>
+                    </tr>
+                    <tr class="appraisal-total">
+                        <td><strong>Required Equity</strong></td>
+                        <td colspan="2" id="loanBreakdown-equity" class="appraisal-negative"><strong>£0</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Financing Tab -->
+        <div id="financing" class="tab-content">
+            <div class="appraisal-section">FINANCING STRUCTURE</div>
+            
+            <div class="appraisal-subsection">LOAN LIMITS</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>LTC Limit</td>
+                    <td id="ltcLimitDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>LTV Limit</td>
+                    <td id="ltvLimitDisplay">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Gross Loan Amount</td>
+                    <td id="grossLoanDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Total Interest Rate</td>
+                    <td id="totalInterestDisplay">0%</td>
+                </tr>
+                <tr>
+                    <td>Net Loan Available</td>
+                    <td id="netLoanDisplay">£0</td>
+                </tr>
+                <tr>
+                    <td>Required Equity</td>
+                    <td id="requiredEquityDisplay">£0</td>
+                </tr>
+            </table>
+            
+            <div class="appraisal-section">FINANCING COSTS</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Arrangement Fee</td>
+                    <td id="arrangementFeeDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Exit Fee</td>
+                    <td id="exitFeeDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Total Interest Cost</td>
+                    <td id="totalInterestCostDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Lender Fee: Site Valuation</td>
+                    <td id="lenderValuationFeeDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Lender Fee: PMS</td>
+                    <td id="lenderPmsFeeDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Lender Fee: Monthly PMS (<span id="monthlyPmsDurationDisplay">0</span> months)</td>
+                    <td id="lenderMonthlyPmsFeeDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Lender Fee: Legals</td>
+                    <td id="lenderLegalFeeDisplay" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-total">
+                    <td>Total Financing Cost</td>
+                    <td id="totalFinancingCostDisplay" class="appraisal-negative">£0</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Profitability Metrics Tab -->
+        <div id="metrics" class="tab-content">
+            <div class="appraisal-section">FINANCIAL PERFORMANCE</div>
+            
+            <table class="appraisal-table">
+                <tr>
+                    <td>Gross Development Value</td>
+                    <td id="metricsGDV">£0</td>
+                </tr>
+                <tr>
+                    <td>Total Development Cost</td>
+                    <td id="metricsTDC">£0</td>
+                </tr>
+                <tr>
+                    <td>Gross Profit</td>
+                    <td id="metricsGrossProfit">£0</td>
+                </tr>
+                <tr>
+                    <td>Profit Margin</td>
+                    <td id="metricsMargin">0%</td>
+                </tr>
+                <tr>
+                    <td>Total Financing Cost</td>
+                    <td id="metricsFinancingCost" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-total">
+                    <td>Net Profit (After Finance)</td>
+                    <td id="metricsNetProfit">£0</td>
+                </tr>
+            </table>
+
+            <div id="residualLandValueSection" style="display: none;">
+                <div class="appraisal-section">RESIDUAL VALUATION</div>
+                <table class="appraisal-table">
+                    <tr>
+                        <td id="residualLandValueLabel">Required Land Price to be Viable</td>
+                        <td id="residualLandValueDisplay">£0</td>
+                    </tr>
+                     <tr>
+                        <td>Minimum GDV Required</td>
+                        <td id="minimumGdvDisplay">£0</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Client Output Tab -->
+        <div id="output" class="tab-content">
+            <div class="output-header">
+                <h3>Development Appraisal Summary</h3>
+                <p id="outputProjectName"></p>
+            </div>
+            
+            <!-- PROJECT APPRAISAL -->
+            <div class="appraisal-section">PROJECT APPRAISAL</div>
+            
+            <div class="appraisal-subsection">REVENUE</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Private Residential Sales</td>
+                    <td id="appraisal-gdv">£0</td>
+                </tr>
+                <tr>
+                    <td>GDV per sqft / m²</td>
+                    <td id="appraisal-gdv-per-sq">£0</td>
+                </tr>
+                <tr>
+                    <td>Sales Costs</td>
+                    <td id="appraisal-sales-costs" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Net Income</td>
+                    <td id="appraisal-net-income">£0</td>
+                </tr>
+            </table>
+            
+            <div class="appraisal-subsection">LAND COSTS</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Land Acquisition</td>
+                    <td id="appraisal-land-cost" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Stamp Duty</td>
+                    <td id="appraisal-stamp-duty" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Other Acquisition Costs</td>
+                    <td id="appraisal-legal-fees" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Total Land Costs</td>
+                    <td id="appraisal-total-land" class="appraisal-negative">£0</td>
+                </tr>
+            </table>
+            
+            <div class="appraisal-subsection">BUILD COSTS</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Construction Costs</td>
+                    <td id="appraisal-construction" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Build Cost per sqft / m²</td>
+                    <td id="appraisal-build-cost-per-sq">£0</td>
+                </tr>
+                <tr>
+                    <td>Construction Contingency</td>
+                    <td id="appraisal-contingency" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Build Cost inc. Contingency</td>
+                    <td id="appraisal-build-cost-inc-contingency" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Professional Fees</td>
+                    <td id="appraisal-prof-fees" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Total Build Costs</td>
+                    <td id="appraisal-total-build" class="appraisal-negative">£0</td>
+                </tr>
+            </table>
+            
+            <tr class="appraisal-subtotal">
+                <table class="appraisal-table">
+                    <tr class="appraisal-subtotal">
+                        <td>Unlevered Costs</td>
+                        <td id="appraisal-unlevered-costs" class="appraisal-negative">£0</td>
+                    </tr>
+                </table>
+            </tr>
+            
+            <div class="appraisal-subsection">FINANCE COSTS</div>
+            <table class="appraisal-table">
+                <tr>
+                    <td>Arrangement Fees</td>
+                    <td id="appraisal-arrangement-fees" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Interest</td>
+                    <td id="appraisal-interest" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Exit Fees</td>
+                    <td id="appraisal-exit-fees" class="appraisal-negative">£0</td>
+                </tr>
+                <tr>
+                    <td>Lenders Professional Fees</td>
+                    <td id="appraisal-lender-fees" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-subtotal">
+                    <td>Total Finance Costs</td>
+                    <td id="appraisal-total-finance" class="appraisal-negative">£0</td>
+                </tr>
+            </table>
+            
+            <table class="appraisal-table">
+                <tr class="appraisal-subtotal">
+                    <td>Levered Costs</td>
+                    <td id="appraisal-levered-costs" class="appraisal-negative">£0</td>
+                </tr>
+                <tr class="appraisal-total">
+                    <td><strong>NET PROFIT</strong></td>
+                    <td id="appraisal-net-profit"><strong>£0</strong></td>
+                </tr>
+            </table>
+            
+            <!-- PROJECT KPIS -->
+            <div class="appraisal-section">PROJECT KPIS</div>
+            <table class="kpi-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Unlevered</th>
+                        <th>Levered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Equity Requirement</td>
+                        <td id="kpi-equity-unlevered">£0</td>
+                        <td id="kpi-equity-levered">£0</td>
+                    </tr>
+                    <tr>
+                        <td>Profit</td>
+                        <td id="kpi-profit-unlevered">£0</td>
+                        <td id="kpi-profit-levered">£0</td>
+                    </tr>
+                    <tr>
+                        <td>EM</td>
+                        <td id="kpi-em-unlevered">0.00x</td>
+                        <td id="kpi-em-levered">0.00x</td>
+                    </tr>
+                    <tr>
+                        <td>Profit-on-Cost</td>
+                        <td id="kpi-poc-unlevered">0.0%</td>
+                        <td id="kpi-poc-levered">0.0%</td>
+                    </tr>
+                    <tr>
+                        <td>Profit-on-Sales</td>
+                        <td id="kpi-pos-unlevered">0.0%</td>
+                        <td id="kpi-pos-levered">0.0%</td>
+                    </tr>
+                    <tr>
+                        <td>IRR</td>
+                        <td id="kpi-irr-unlevered">0.0%</td>
+                        <td id="kpi-irr-levered">0.0%</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <!-- PROFIT SPLIT -->
+            <div class="appraisal-section">ANTICIPATED PROFIT SPLIT AND RETURNS</div>
+            <table class="kpi-table">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Project</th>
+                        <th id="investor-name-header">Investor</th>
+                        <th>Developer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Equity Requirement</td>
+                        <td id="split-equity-project">£0</td>
+                        <td id="split-equity-investor">£0</td>
+                        <td id="split-equity-developer">£0</td>
+                    </tr>
+                    <tr>
+                        <td><em>% equity</em></td>
+                        <td id="split-percent-project">100%</td>
+                        <td id="split-percent-investor">0%</td>
+                        <td id="split-percent-developer">100%</td>
+                    </tr>
+                    <tr>
+                        <td>EM (Equity Multiple)</td>
+                        <td id="split-em-project">0.00x</td>
+                        <td id="split-em-investor">0.00x</td>
+                        <td id="split-em-developer">0.00x</td>
+                    </tr>
+                    <tr>
+                        <td>Share of Profit</td>
+                        <td id="split-profit-project">£0</td>
+                        <td id="split-profit-investor">£0</td>
+                        <td id="split-profit-developer">£0</td>
+                    </tr>
+                    <tr class="appraisal-total">
+                        <td><strong>Total Profit</strong></td>
+                        <td id="split-total-project"><strong>£0</strong></td>
+                        <td id="split-total-investor"><strong>£0</strong></td>
+                        <td id="split-total-developer"><strong>£0</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <script>
+        var nextFeeId = 7;
+        
+        function showTab(tabName, clickedTab) {
+            try {
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+                document.getElementById(tabName).classList.add('active');
+                clickedTab.classList.add('active');
+            } catch (error) {
+                console.error('Tab switching error:', error);
+            }
+        }
+        
+        function addFeeItem() {
+            try {
+                var container = document.getElementById('professionalFeesContainer');
+                var newFeeHtml = `<div class="professional-fee-item" data-fee-id="${nextFeeId}">
+                    <div>
+                        <input type="text" class="fee-name-input" value="New Professional Fee">
+                        <input type="number" id="fee${nextFeeId}Value" value="10000" step="1000">
+                    </div>
+                    <div>
+                        <label for="fee${nextFeeId}Method">Method</label>
+                        <select id="fee${nextFeeId}Method" class="fee-method">
+                            <option value="percent">% of Construction</option>
+                            <option value="sqft">Per Sq Ft/M</option>
+                            <option value="fixed" selected>Fixed Sum</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>&nbsp;</label>
+                        <div class="fee-result-section">
+                            <span id="fee${nextFeeId}Display" class="fee-display">£10,000</span>
+                            <button type="button" onclick="removeFeeItem(${nextFeeId})" class="remove-btn">Remove</button>
+                        </div>
+                    </div>
+                </div>`;
+                
+                container.insertAdjacentHTML('beforeend', newFeeHtml);
+                
+                var newInputs = container.lastElementChild.querySelectorAll('input, select');
+                newInputs.forEach(input => {
+                    input.addEventListener('input', calculate);
+                    input.addEventListener('change', calculate);
+                });
+                
+                nextFeeId++;
+                calculate();
+            } catch (error) {
+                console.error('Add fee item error:', error);
+            }
+        }
+        
+        function removeFeeItem(feeId) {
+            try {
+                var feeItem = document.querySelector(`[data-fee-id="${feeId}"]`);
+                if (feeItem) {
+                    feeItem.remove();
+                    calculate();
+                }
+            } catch (error) {
+                console.error('Remove fee item error:', error);
+            }
+        }
+        
+        function getValue(id) {
+            var element = document.getElementById(id);
+            if (element) {
+                var value = parseFloat(element.value);
+                return isNaN(value) ? 0 : value;
+            }
+            return 0;
+        }
+        
+        function getStringValue(id) {
+            var element = document.getElementById(id);
+            return element ? element.value : '';
+        }
+        
+        function updateElement(id, content) {
+            var element = document.getElementById(id);
+            if (element) {
+                element.innerHTML = content;
+            }
+        }
+        
+        function formatCurrency(value) {
+            if (isNaN(value)) value = 0;
+            return '£' + Math.round(value).toLocaleString();
+        }
+        
+        function calculateProfessionalFee(value, method, buildCost, schemeSize) {
+            switch (method) {
+                case 'percent': return buildCost * (value / 100);
+                case 'sqft': return schemeSize * value;
+                case 'fixed':
+                default: return value;
+            }
+        }
+        
+        function calculate() {
+            try {
+                var projectName = getStringValue('projectName');
+                var totalUnits = getValue('totalUnits') || 1;
+                var schemeSize = getValue('schemeSize') || 1;
+                var sizeUnit = getStringValue('sizeUnit') || 'sqft';
+                var landCost = getValue('landCost');
+                var stampDuty = getValue('stampDuty');
+                var legalFees = getValue('legalFees');
+                var landPeriod = getValue('landPeriod');
+                var buildCostTotal = getValue('buildCostTotal');
+                var contingency = getValue('contingency');
+                var buildStartPeriod = getValue('buildStartPeriod');
+                var buildDuration = getValue('buildDuration');
+                var sCurveEnabled = getStringValue('sCurve') === 'true';
+                var grossDevelopmentValue = getValue('grossDevelopmentValue');
+                var salesFees = getValue('salesFees');
+                var salesStartPeriod = getValue('salesStartPeriod');
+                var salesDuration = getValue('salesDuration');
+                var ltcRatio = getValue('ltcRatio');
+                var ltvRatio = getValue('ltvRatio');
+                var baseRate = getValue('baseRate');
+                var margin = getValue('margin');
+                var arrangementFeeRate = getValue('arrangementFee');
+                var exitFeeRate = getValue('exitFee');
+                var startPeriod = 1;
+                var endPeriod = getValue('endPeriod');
+                var targetProfitOnCost = getValue('targetProfitOnCost');
+                var investorName = getStringValue('investorName');
+                var investorEquityPercent = getValue('investorEquityPercent') / 100;
+                var investorProfitShare = getValue('investorProfitShare') / 100;
+                var lenderValuationFee = getValue('lenderValuationFee');
+                var lenderPmsFee = getValue('lenderPmsFee');
+                var lenderMonthlyPmsFee = getValue('lenderMonthlyPmsFee');
+                var lenderLegalFee = getValue('lenderLegalFee');
+                
+                var pmsDuration = buildDuration;
+                updateElement('pmsDurationDisplay', pmsDuration + ' months');
+                var totalMonthlyPms = lenderMonthlyPmsFee * pmsDuration;
+
+                var equityOnlyLenderFees = lenderValuationFee + lenderPmsFee + lenderLegalFee;
+                var loanFundedLenderFees = totalMonthlyPms;
+                var totalLenderFees = equityOnlyLenderFees + loanFundedLenderFees;
+                
+                var professionalFeesTotal = 0;
+                var feeItems = document.querySelectorAll('.professional-fee-item');
+                for (var i = 0; i < feeItems.length; i++) {
+                    var feeId = feeItems[i].getAttribute('data-fee-id');
+                    var value = getValue('fee' + feeId + 'Value');
+                    var method = getStringValue('fee' + feeId + 'Method');
+                    var calculatedFee = calculateProfessionalFee(value, method, buildCostTotal, schemeSize);
+                    professionalFeesTotal += calculatedFee;
+                    updateElement('fee' + feeId + 'Display', formatCurrency(calculatedFee));
+                }
+                
+                professionalFeesTotal += loanFundedLenderFees;
+                updateElement('totalProfessionalFees', formatCurrency(professionalFeesTotal));
+
+                var totalLandCost = landCost + stampDuty + legalFees;
+                var contingencyCost = buildCostTotal * (contingency / 100);
+                var totalDevelopmentCost = totalLandCost + buildCostTotal + professionalFeesTotal + contingencyCost;
+                
+                var avgSalePrice = totalUnits > 0 ? grossDevelopmentValue / totalUnits : 0;
+                var salesFeesCost = grossDevelopmentValue * (salesFees / 100);
+                var netDevelopmentValue = grossDevelopmentValue - salesFeesCost;
+                
+                var grossProfit = netDevelopmentValue - totalDevelopmentCost - salesFeesCost;
+                
+                var ltcBaseCost = totalDevelopmentCost - stampDuty; 
+                var ltcLimit = ltcBaseCost * (ltcRatio / 100);
+                var ltvLimit = grossDevelopmentValue * (ltvRatio / 100);
+                var grossLoanAmount = Math.min(ltcLimit, ltvLimit);
+                var arrangementFee = grossLoanAmount * (arrangementFeeRate / 100);
+                var exitFee = exitFeeRate > 0 ? grossLoanAmount * (exitFeeRate / 100) : 0;
+                var netLoanAvailable = grossLoanAmount - arrangementFee;
+                var monthlyRate = (baseRate + margin) / 100 / 12;
+
+                var interestResult = calculateSCurveInterest(totalLandCost, buildCostTotal, professionalFeesTotal, contingencyCost, grossDevelopmentValue, salesFees, netLoanAvailable, monthlyRate, landPeriod, buildStartPeriod, buildDuration, salesStartPeriod, salesDuration, startPeriod, endPeriod, sCurveEnabled);
+                
+                var totalInterestCost = interestResult.totalInterest;
+                var totalLoanCosts = arrangementFee + totalInterestCost;
+                var developmentCosts = buildCostTotal + professionalFeesTotal + contingencyCost;
+                var totalFundingRequired = totalLoanCosts + developmentCosts + totalLandCost + equityOnlyLenderFees;
+                var totalRequiredEquity = Math.max(0, totalFundingRequired - grossLoanAmount);
+                var totalFinancingCosts = arrangementFee + exitFee + totalInterestCost + totalLenderFees;
+                var netProfit = grossProfit - totalFinancingCosts;
+                var profitMargin = grossDevelopmentValue > 0 ? (netProfit / grossDevelopmentValue) * 100 : 0;
+                
+                var costPerSqUnit = schemeSize > 0 ? totalDevelopmentCost / schemeSize : 0;
+                var gdvPerSqUnit = schemeSize > 0 ? grossDevelopmentValue / schemeSize : 0;
+                var sizeUnitDisplay = sizeUnit === 'sqft' ? 'per sqft' : 'per m²';
+                
+                updateElement('avgPriceDisplay', formatCurrency(avgSalePrice));
+                updateElement('gdvDisplay', formatCurrency(grossDevelopmentValue));
+                updateElement('gdvPerSqFtDisplay', '£' + Math.round(gdvPerSqUnit).toLocaleString() + ' ' + sizeUnitDisplay);
+                updateElement('salesFeesDisplay', formatCurrency(salesFeesCost));
+                updateElement('ndvDisplay', formatCurrency(netDevelopmentValue));
+                
+                updateElement('landCostDisplay', formatCurrency(totalLandCost));
+                updateElement('buildCostDisplay', formatCurrency(buildCostTotal));
+                updateElement('profFeesDisplay', formatCurrency(professionalFeesTotal));
+                updateElement('contingencyDisplay', formatCurrency(contingencyCost) + ' (' + contingency + '%)');
+                updateElement('totalCostDisplay', formatCurrency(totalDevelopmentCost));
+                updateElement('costPerSqDisplay', '£' + Math.round(costPerSqUnit).toLocaleString() + ' ' + sizeUnitDisplay);
+                updateElement('salesFeesBreakdownDisplay', formatCurrency(salesFeesCost));
+                updateElement('gdvPerSqDisplay', '£' + Math.round(gdvPerSqUnit).toLocaleString() + ' ' + sizeUnitDisplay);
+                
+                var profFeesBreakdownTable = document.getElementById('profFeesBreakdownTable');
+                profFeesBreakdownTable.innerHTML = ''; 
+                for (var i = 0; i < feeItems.length; i++) {
+                    var feeItem = feeItems[i];
+                    var feeId = feeItem.getAttribute('data-fee-id');
+                    var feeNameInput = feeItem.querySelector('.fee-name-input');
+                    var feeName = feeNameInput ? feeNameInput.value : 'Unnamed Fee';
+                    var value = getValue('fee' + feeId + 'Value');
+                    var method = getStringValue('fee' + feeId + 'Method');
+                    var calculatedFee = calculateProfessionalFee(value, method, buildCostTotal, schemeSize);
+                    var newRow = profFeesBreakdownTable.insertRow();
+                    var cell1 = newRow.insertCell(0);
+                    var cell2 = newRow.insertCell(1);
+                    cell1.textContent = feeName;
+                    cell2.textContent = formatCurrency(calculatedFee);
+                }
+                
+                var fundedArrangementFee = Math.min(arrangementFee, grossLoanAmount);
+                var remainingAfterArrangement = Math.max(0, grossLoanAmount - arrangementFee);
+                var fundedInterest = Math.min(totalInterestCost, remainingAfterArrangement);
+                var remainingAfterInterest = Math.max(0, remainingAfterArrangement - totalInterestCost);
+                var fundedDevelopmentCosts = Math.min(developmentCosts, remainingAfterInterest);
+                var remainingAfterDevelopment = Math.max(0, remainingAfterInterest - developmentCosts);
+                var fundedLandCosts = Math.min(totalLandCost, remainingAfterDevelopment);
+                var totalFunded = fundedArrangementFee + fundedInterest + fundedDevelopmentCosts + fundedLandCosts;
+                
+                updateElement('loanBreakdown-arrangementFee', '-' + formatCurrency(arrangementFee));
+                updateElement('loanBreakdown-arrangementFeeFunded', formatCurrency(fundedArrangementFee));
+                updateElement('loanBreakdown-interest', '-' + formatCurrency(totalInterestCost));
+                updateElement('loanBreakdown-interestFunded', formatCurrency(fundedInterest));
+                updateElement('loanBreakdown-devCosts', '-' + formatCurrency(developmentCosts));
+                updateElement('loanBreakdown-devCostsFunded', formatCurrency(fundedDevelopmentCosts));
+                updateElement('loanBreakdown-landCosts', '-' + formatCurrency(totalLandCost));
+                updateElement('loanBreakdown-landCostsFunded', formatCurrency(fundedLandCosts));
+                updateElement('loanBreakdown-totalCosts', '-' + formatCurrency(totalFundingRequired));
+                updateElement('loanBreakdown-totalFunded', formatCurrency(totalFunded));
+                updateElement('loanBreakdown-equity', '-' + formatCurrency(totalRequiredEquity));
+                
+                updateElement('ltcLimitDisplay', formatCurrency(ltcLimit) + ' (' + ltcRatio + '%)');
+                updateElement('ltvLimitDisplay', formatCurrency(ltvLimit) + ' (' + ltvRatio + '%)');
+                updateElement('grossLoanDisplay', formatCurrency(grossLoanAmount));
+                updateElement('totalInterestDisplay', (baseRate + margin).toFixed(2) + '%');
+                updateElement('netLoanDisplay', formatCurrency(grossLoanAmount - arrangementFee));
+                updateElement('requiredEquityDisplay', formatCurrency(totalRequiredEquity));
+                
+                updateElement('arrangementFeeDisplay', formatCurrency(arrangementFee));
+                updateElement('exitFeeDisplay', exitFeeRate > 0 ? formatCurrency(exitFee) : '£0');
+                updateElement('totalInterestCostDisplay', formatCurrency(totalInterestCost));
+                updateElement('lenderValuationFeeDisplay', '-' + formatCurrency(lenderValuationFee));
+                updateElement('lenderPmsFeeDisplay', '-' + formatCurrency(lenderPmsFee));
+                updateElement('monthlyPmsDurationDisplay', pmsDuration);
+                updateElement('lenderMonthlyPmsFeeDisplay', '-' + formatCurrency(totalMonthlyPms));
+                updateElement('lenderLegalFeeDisplay', '-' + formatCurrency(lenderLegalFee));
+                updateElement('totalFinancingCostDisplay', formatCurrency(totalFinancingCosts));
+                
+                updateElement('metricsGDV', formatCurrency(grossDevelopmentValue));
+                updateElement('metricsTDC', formatCurrency(totalDevelopmentCost));
+                updateElement('metricsGrossProfit', formatCurrency(grossProfit));
+                updateElement('metricsMargin', profitMargin.toFixed(1) + '%');
+                updateElement('metricsNetProfit', formatCurrency(netProfit));
+                updateElement('metricsFinancingCost', formatCurrency(totalFinancingCosts));
+                
+                updateElement('outputProjectName', projectName);
+                updateElement('appraisal-gdv', formatCurrency(grossDevelopmentValue));
+                updateElement('appraisal-gdv-per-sq', '£' + Math.round(gdvPerSqUnit).toLocaleString() + ' ' + sizeUnitDisplay);
+                updateElement('appraisal-sales-costs', '-' + formatCurrency(salesFeesCost));
+                updateElement('appraisal-net-income', formatCurrency(netDevelopmentValue));
+                
+                updateElement('appraisal-land-cost', '-' + formatCurrency(landCost));
+                updateElement('appraisal-stamp-duty', '-' + formatCurrency(stampDuty));
+                updateElement('appraisal-legal-fees', '-' + formatCurrency(legalFees));
+                updateElement('appraisal-total-land', '-' + formatCurrency(totalLandCost));
+                
+                var buildCostIncContingency = buildCostTotal + contingencyCost;
+                updateElement('appraisal-construction', '-' + formatCurrency(buildCostTotal));
+                updateElement('appraisal-contingency', '-' + formatCurrency(contingencyCost));
+                updateElement('appraisal-prof-fees', '-' + formatCurrency(professionalFeesTotal));
+                var totalBuildCosts = buildCostTotal + contingencyCost + professionalFeesTotal;
+                updateElement('appraisal-total-build', '-' + formatCurrency(totalBuildCosts));
+                
+                var buildCostPerSq = schemeSize > 0 ? buildCostTotal / schemeSize : 0;
+                updateElement('appraisal-build-cost-per-sq', '£' + Math.round(buildCostPerSq).toLocaleString() + ' ' + sizeUnitDisplay);
+                updateElement('appraisal-build-cost-inc-contingency', '-' + formatCurrency(buildCostIncContingency));
+                
+                var unlevergedCosts = totalDevelopmentCost;
+                updateElement('appraisal-unlevered-costs', '-' + formatCurrency(unlevergedCosts));
+                
+                updateElement('appraisal-arrangement-fees', '-' + formatCurrency(arrangementFee));
+                updateElement('appraisal-interest', '-' + formatCurrency(totalInterestCost));
+                updateElement('appraisal-exit-fees', '-' + formatCurrency(exitFee));
+                updateElement('appraisal-lender-fees', '-' + formatCurrency(totalLenderFees));
+                updateElement('appraisal-total-finance', '-' + formatCurrency(totalFinancingCosts));
+                
+                var levergedCosts = totalDevelopmentCost + totalFinancingCosts;
+                updateElement('appraisal-levered-costs', '-' + formatCurrency(levergedCosts));
+                updateElement('appraisal-net-profit', formatCurrency(netProfit));
+                
+                var unlevergedProfit = netDevelopmentValue - unlevergedCosts;
+                var levergedProfit = netProfit;
+                var unlevergedEquity = totalDevelopmentCost;
+                var levergedEquity = totalRequiredEquity;
+                
+                updateElement('kpi-equity-unlevered', formatCurrency(unlevergedEquity));
+                updateElement('kpi-equity-levered', formatCurrency(levergedEquity));
+                updateElement('kpi-profit-unlevered', formatCurrency(unlevergedProfit));
+                updateElement('kpi-profit-levered', formatCurrency(levergedProfit));
+                
+                var unlevergedEM = unlevergedEquity > 0 ? (unlevergedEquity + unlevergedProfit) / unlevergedEquity : 0;
+                var levergedEM = levergedEquity > 0 ? (levergedEquity + levergedProfit) / levergedEquity : 0;
+                updateElement('kpi-em-unlevered', unlevergedEM.toFixed(2) + 'x');
+                updateElement('kpi-em-levered', levergedEM.toFixed(2) + 'x');
+                
+                var unlevergedPOC = unlevergedCosts > 0 ? (unlevergedProfit / unlevergedCosts) * 100 : 0;
+                var levergedPOC = unlevergedCosts > 0 ? (levergedProfit / unlevergedCosts) * 100 : 0;
+                updateElement('kpi-poc-unlevered', unlevergedPOC.toFixed(1) + '%');
+                updateElement('kpi-poc-levered', levergedPOC.toFixed(1) + '%');
+                
+                var unlevergedPOS = grossDevelopmentValue > 0 ? (unlevergedProfit / grossDevelopmentValue) * 100 : 0;
+                var levergedPOS = grossDevelopmentValue > 0 ? (levergedProfit / grossDevelopmentValue) * 100 : 0;
+                updateElement('kpi-pos-unlevered', unlevergedPOS.toFixed(1) + '%');
+                updateElement('kpi-pos-levered', levergedPOS.toFixed(1) + '%');
+                
+                var projectDurationYears = (endPeriod - startPeriod + 1) / 12;
+                projectDurationYears = projectDurationYears > 0 ? projectDurationYears : 1;
+                var unlevergedIRR = unlevergedEquity > 0 ? (Math.pow(unlevergedEM, 1 / projectDurationYears) - 1) * 100 : 0;
+                var levergedIRR = levergedEquity > 0 ? (Math.pow(levergedEM, 1 / projectDurationYears) - 1) * 100 : 0;
+                updateElement('kpi-irr-unlevered', unlevergedIRR.toFixed(1) + '%');
+                updateElement('kpi-irr-levered', levergedIRR.toFixed(1) + '%');
+                
+                var investorEquityCommitment = totalRequiredEquity * investorEquityPercent;
+                var developerEquityCommitment = totalRequiredEquity * (1 - investorEquityPercent);
+                var profitToSplit = netProfit;
+                var investorProfitShareAmount = profitToSplit * investorProfitShare;
+                var developerProfitShareAmount = profitToSplit * (1 - investorProfitShare);
+                var totalInvestorProfit = investorProfitShareAmount;
+                var totalDeveloperProfit = developerProfitShareAmount;
+                var investorEM = investorEquityCommitment > 0 ? (investorEquityCommitment + totalInvestorProfit) / investorEquityCommitment : 0;
+                var developerEM = developerEquityCommitment > 0 ? (developerEquityCommitment + totalDeveloperProfit) / developerEquityCommitment : 0;
+                
+                updateElement('investorEquityCommitment', formatCurrency(investorEquityCommitment));
+                updateElement('investor-name-header', investorName || 'Investor');
+                updateElement('split-equity-project', formatCurrency(totalRequiredEquity));
+                updateElement('split-equity-investor', formatCurrency(investorEquityCommitment));
+                updateElement('split-equity-developer', formatCurrency(developerEquityCommitment));
+                updateElement('split-percent-investor', (investorEquityPercent * 100).toFixed(0) + '%');
+                updateElement('split-percent-developer', ((1 - investorEquityPercent) * 100).toFixed(0) + '%');
+                updateElement('split-em-project', levergedEM.toFixed(2) + 'x');
+                updateElement('split-em-investor', investorEM.toFixed(2) + 'x');
+                updateElement('split-em-developer', developerEM.toFixed(2) + 'x');
+                updateElement('split-profit-project', formatCurrency(profitToSplit));
+                updateElement('split-profit-investor', formatCurrency(investorProfitShareAmount));
+                updateElement('split-profit-developer', formatCurrency(developerProfitShareAmount));
+                updateElement('split-total-project', formatCurrency(netProfit));
+                updateElement('split-total-investor', formatCurrency(totalInvestorProfit));
+                updateElement('split-total-developer', formatCurrency(totalDeveloperProfit));
+
+                // Residual Land Value Calculation
+                if (targetProfitOnCost > 0) {
+                    document.getElementById('residualLandValueSection').style.display = 'block';
+                    let nonLandCosts = (totalDevelopmentCost - totalLandCost) + totalFinancingCosts + salesFeesCost;
+                    let allowableTotalCost = (grossDevelopmentValue - salesFeesCost) / (1 + (targetProfitOnCost / 100));
+                    let residualLandValue = allowableTotalCost - nonLandCosts;
+
+                    if (levergedPOC < targetProfitOnCost) {
+                        updateElement('residualLandValueLabel', 'Required Land Price to be Viable');
+                    } else {
+                        updateElement('residualLandValueLabel', 'Maximum Site Purchase Price');
+                    }
+                    updateElement('residualLandValueDisplay', formatCurrency(Math.max(0, residualLandValue)));
+
+                    // Minimum GDV Calculation
+                    let requiredProfit = unlevergedCosts * (targetProfitOnCost / 100);
+                    let requiredNetRevenue = unlevergedCosts + totalFinancingCosts + requiredProfit;
+                    let minimumGDV = requiredNetRevenue / (1 - (salesFees / 100));
+                    updateElement('minimumGdvDisplay', formatCurrency(minimumGDV));
+
+                } else {
+                    document.getElementById('residualLandValueSection').style.display = 'none';
+                }
+
+            } catch (error) {
+                console.error('Calculation error:', error);
+            }
+        }
+        
+        function calculateSCurveInterest(landCost, buildCost, profFees, contingency, gdv, salesFeesRate, netLoan, monthlyRate, landPeriod, buildStart, buildDuration, salesStart, salesDuration, startPeriod, endPeriod, useSCurve) {
+            try {
+                var totalInterest = 0;
+                var outstandingLoan = 0;
+                var developmentCosts = buildCost + contingency + profFees;
+                var netSalesReceipts = gdv * (1 - (salesFeesRate / 100));
+                var buildCosts = [];
+                if (buildDuration > 0) {
+                    for (var i = 0; i < buildDuration; i++) {
+                        if (useSCurve) {
+                            var progress = (i + 1) / buildDuration;
+                            var sCurveValue = 3 * Math.pow(progress, 2) - 2 * Math.pow(progress, 3);
+                            var prevProgress = i === 0 ? 0 : 3 * Math.pow(i / buildDuration, 2) - 2 * Math.pow(i / buildDuration, 3);
+                            buildCosts[i] = developmentCosts * (sCurveValue - prevProgress);
+                        } else {
+                            buildCosts[i] = developmentCosts / buildDuration;
+                        }
+                    }
+                }
+                var salesPerPeriod = salesDuration > 0 ? netSalesReceipts / salesDuration : 0;
+                for (var period = startPeriod; period <= endPeriod; period++) {
+                    var periodCosts = 0;
+                    var periodSales = 0;
+                    var loanDrawdown = 0;
+                    var loanRepayment = 0;
+                    if (period === landPeriod) periodCosts += landCost;
+                    if (period >= buildStart && period < buildStart + buildDuration) {
+                        periodCosts += buildCosts[period - buildStart] || 0;
+                    }
+                    if (period >= salesStart && period < salesStart + salesDuration) {
+                        periodSales = salesPerPeriod;
+                    }
+                    if (periodCosts > 0 && outstandingLoan < netLoan) {
+                        loanDrawdown = Math.min(periodCosts, netLoan - outstandingLoan);
+                    }
+                    if (outstandingLoan > 0) {
+                        var interestCharge = outstandingLoan * monthlyRate;
+                        totalInterest += interestCharge;
+                        outstandingLoan += interestCharge;
+                    }
+                    outstandingLoan += loanDrawdown;
+                    if (periodSales > 0 && outstandingLoan > 0) {
+                        loanRepayment = Math.min(periodSales * 0.8, outstandingLoan);
+                        outstandingLoan -= loanRepayment;
+                    }
+                    outstandingLoan = Math.max(0, outstandingLoan);
+                }
+                return { totalInterest, finalBalance: outstandingLoan };
+            } catch (error) {
+                console.error('S-curve interest calculation error:', error);
+                return { totalInterest: 0, finalBalance: 0 };
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            var inputs = document.querySelectorAll('input, select');
+            for (var i = 0; i < inputs.length; i++) {
+                 inputs[i].addEventListener('input', calculate);
+                 inputs[i].addEventListener('change', calculate);
+            }
+            calculate();
+        });
+    </script>
+</body>
+</html>
+
